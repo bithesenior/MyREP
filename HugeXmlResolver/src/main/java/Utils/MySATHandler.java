@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author oooooooooooldbi
  * @date 2025/4/18 10:38
  * @email bithesenior@163.com
@@ -24,11 +23,13 @@ import java.util.Map;
 public class MySATHandler extends DefaultHandler {
     String value = null;
 
-    String entityPackage ="";
+    String entityPackage = "";
+
+    String defaultString = "##default";
 
     List dtoList = new ArrayList();
 
-    Map<String , Class> classMap = new HashMap();
+    Map<String, Class> classMap = new HashMap();
     //
     List resultList = new ArrayList();
 
@@ -36,7 +37,7 @@ public class MySATHandler extends DefaultHandler {
         return resultList;
     }
 
-    public MySATHandler (String entityPackage) {
+    public MySATHandler(String entityPackage) {
         this.entityPackage = entityPackage;
     }
 
@@ -51,8 +52,17 @@ public class MySATHandler extends DefaultHandler {
         List<Class<?>> dtoClazz = PackageScanner.scanPackage(entityPackage);
 
         for (Class<?> cls : dtoClazz) {
-            if (cls.isAnnotationPresent(ObjectXMLElement.class))
-                classMap.put(cls.getAnnotation(ObjectXMLElement.class).name(), cls);
+
+            if (cls.isAnnotationPresent(ObjectXMLElement.class)) {
+
+                String name = cls.getAnnotation(ObjectXMLElement.class).name();
+
+                if (defaultString.equals(name)) {
+                    name = SetMethodDefaultValue.classNameDefaultValue(cls);
+                }
+
+                classMap.put(name, cls);
+            }
         }
     }
 
@@ -90,20 +100,29 @@ public class MySATHandler extends DefaultHandler {
 
             int num = attributes.getLength();
             for (int i = 0; i < num; i++) {
-               Field[] declaredFields = aClass.getDeclaredFields();
+                Field[] declaredFields = aClass.getDeclaredFields();
                 for (Field field : declaredFields) {
                     FieldXMLElement annotation = field.getAnnotation(FieldXMLElement.class);
-                    if (null!=annotation&&attributes.getQName(i).equals(annotation.name())){
-                        try {
 
-                            Method method = aClass.getMethod(annotation.setMethod(), String.class);
-                            method.invoke(o,attributes.getValue(i));
-                        } catch (NoSuchMethodException e) {
-                            throw new RuntimeException(e);
-                        } catch (InvocationTargetException e) {
-                            throw new RuntimeException(e);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
+                    if (annotation != null) {
+                        if ((defaultString.equals(annotation.name()) && attributes.getQName(i).equals(field.getName())) || attributes.getQName(i).equals(annotation.name())) {
+                            try {
+
+                                String setMethod = annotation.setMethod();
+
+                                if (defaultString.equals(setMethod)) {
+                                    setMethod = SetMethodDefaultValue.setMethodDefaultValue(field);
+                                }
+
+                                Method method = aClass.getMethod(setMethod, String.class);
+                                method.invoke(o, attributes.getValue(i));
+                            } catch (NoSuchMethodException e) {
+                                throw new RuntimeException(e);
+                            } catch (InvocationTargetException e) {
+                                throw new RuntimeException(e);
+                            } catch (IllegalAccessException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     }
                 }
@@ -121,7 +140,7 @@ public class MySATHandler extends DefaultHandler {
 
         super.endElement(uri, localName, qName);
 
-        if (dtoList.size()>0){
+        if (dtoList.size() > 0) {
 
             Object o = dtoList.get(dtoList.size() - 1);
 
@@ -129,12 +148,42 @@ public class MySATHandler extends DefaultHandler {
             for (Field field : declaredFields) {
                 FieldXMLElement annotation = field.getAnnotation(FieldXMLElement.class);
 
-                if (null!=annotation&&qName.equals(annotation.name())) {
-                    Method method = null;
+                if (null != annotation) {
+                    if ((defaultString.equals(annotation.name()) && qName.equals(field.getName())) || qName.equals(annotation.name())) {
+                        Method method = null;
+                        try {
+
+                            String setMethod = annotation.setMethod();
+
+                            if (defaultString.equals(setMethod)) {
+                                setMethod = SetMethodDefaultValue.setMethodDefaultValue(field);
+                            }
+
+                            method = o.getClass().getMethod(setMethod, String.class);
+                            method.invoke(o, value);
+                        } catch (NoSuchMethodException e) {
+                            throw new RuntimeException(e);
+                        } catch (InvocationTargetException e) {
+                            throw new RuntimeException(e);
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    }
+                }
+            }
+
+            if (classMap.containsKey(qName)) {
+                Class aClass = classMap.get(qName);
+
+                Object son = dtoList.get(dtoList.size() - 1);
+                ObjectXMLElement annotation = (ObjectXMLElement) aClass.getAnnotation(ObjectXMLElement.class);
+                String rootedMethod = annotation.rootMethod();
+
+                if (!rootedMethod.equals(defaultString)) {
                     try {
-                        method = o.getClass().getMethod(annotation.setMethod(), String.class);
-                        method.invoke(o,value);
-                        System.out.println(o);
+                        Method method = son.getClass().getMethod(rootedMethod);
+                        method.invoke(son);
                     } catch (NoSuchMethodException e) {
                         throw new RuntimeException(e);
                     } catch (InvocationTargetException e) {
@@ -142,48 +191,26 @@ public class MySATHandler extends DefaultHandler {
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
+                } else if (dtoList.size() > 1) {
+                    Object father = dtoList.get(dtoList.size() - 2);
+                    //Object son = dtoList.get(dtoList.size() - 1);
+                    //RootXMLElement annotation = (RootXMLElement) aClass.getAnnotation(RootXMLElement.class);
+                    try {
+                        Method method = father.getClass().getMethod(annotation.addMethod(), son.getClass());
+                        method.invoke(father, son);
 
-                }
-            }
-
-        if (classMap.containsKey(qName)) {
-            Class aClass = classMap.get(qName);
-
-            Object son = dtoList.get(dtoList.size() - 1);
-            ObjectXMLElement annotation = (ObjectXMLElement) aClass.getAnnotation(ObjectXMLElement.class);
-            String rootedMethod = annotation.rootMethod();
-
-            if (!rootedMethod.equals("")) {
-                try {
-                    Method method =son.getClass().getMethod(rootedMethod);
-                    method.invoke(son);
-                } catch (NoSuchMethodException e) {
-                    throw new RuntimeException(e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }else if(dtoList.size()>1){
-                Object father = dtoList.get(dtoList.size() - 2);
-                //Object son = dtoList.get(dtoList.size() - 1);
-                //RootXMLElement annotation = (RootXMLElement) aClass.getAnnotation(RootXMLElement.class);
-                try {
-                    Method method = father.getClass().getMethod(annotation.addMethod(),son.getClass());
-                    method.invoke(father,son);
-
-                } catch (NoSuchMethodException e) {
-                    throw new RuntimeException(e);
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }else {
+                    } catch (NoSuchMethodException e) {
+                        throw new RuntimeException(e);
+                    } catch (InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
                     resultList.add(dtoList.get(dtoList.size() - 1));
+                }
+                dtoList.remove(dtoList.size() - 1);
             }
-            dtoList.remove(dtoList.size() - 1);
-        }
 
         }
     }

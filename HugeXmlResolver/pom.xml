@@ -3,10 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <description>
+        stream type xml resolver using small memory,based on sat,enable to solve a huge xml file element by element
+    </description>
 
     <groupId>io.github.bithesenior</groupId>
     <artifactId>huge-xml-resolver</artifactId>
-    <version>1.0.1-release</version>
+    <version>1.1-release</version>
+    <url>https://github.com/bithesenior/MyREP/tree/main/HugeXmlResolver</url>
 
     <licenses>
         <license>
@@ -14,6 +18,14 @@
             <url>https://www.apache.org/licenses/LICENSE-2.0</url>
         </license>
     </licenses>
+
+    <scm>
+        <!--scm:git:不变，后面改成克隆仓库时的https地址-->
+        <connection>scm:git:https://github.com/bithesenior/.git</connection>
+        <developerConnection>scm:git:https://github.com/bithesenior.git</developerConnection>
+        <!--仓库地址-->
+        <url>https://github.com/bithesenior/MyREP</url>
+    </scm>
 
     <developers>
         <developer>

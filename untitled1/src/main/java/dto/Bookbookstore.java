@@ -2,7 +2,6 @@ package dto;
 
 import anos.ObjectXMLElement;
 
-
 import java.util.ArrayList;
 import java.util.List;
 @ObjectXMLElement(name ="bookstore")

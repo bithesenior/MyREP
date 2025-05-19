@@ -25,12 +25,4 @@ public class Page {
     public void setContext(String context) {
         this.context = context;
     }
-
-    public Page() {
-    }
-
-    public Page(String value, String context) {
-        this.value = value;
-        this.context = context;
-    }
 }

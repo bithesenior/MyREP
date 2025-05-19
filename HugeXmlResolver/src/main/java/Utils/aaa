@@ -1,1 +1,0 @@
-mvn install:install-file -Dfile=C:\Users\bithe\.m2\repository\pers\bts\huge-xml-resolver\1.0-SNAPSHOT\huge-xml-resolver-1.0-SNAPSHOT  -DgroupId=pers.bts -DartifactId=huge-xml-resolver -Dversion=1.0-SNAPSHOT -Dpackaging=jar

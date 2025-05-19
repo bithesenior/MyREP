@@ -4,7 +4,7 @@ import anos.FieldXMLElement;
 import anos.ObjectXMLElement;
 
 
-@ObjectXMLElement(name ="holder",addMethod = "setHolder")
+@ObjectXMLElement(addMethod = "setHolder")
 public class Holder {
 
     @FieldXMLElement(name = "name",setMethod = "setName")
@@ -29,10 +29,4 @@ public class Holder {
         this.name = name;
     }
 
-    public Holder(String name) {
-        this.name = name;
-    }
-
-    public Holder() {
-    }
 }

@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 public @interface FieldXMLElement {
     String name() default "##default";
-    String setMethod() default "";
+    String setMethod() default "##default";
 }

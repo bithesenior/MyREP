@@ -5,19 +5,19 @@ import anos.ObjectXMLElement;
 import java.util.ArrayList;
 import java.util.List;
 
-@ObjectXMLElement(name ="book",addMethod = "addBook",rootMethod ="resolveBysingle")
+@ObjectXMLElement(addMethod = "addBook",rootMethod = "resolveBysingle")
 public class Book {
 
-    @FieldXMLElement(name = "id",setMethod = "setId")
+    @FieldXMLElement
     String id;
-    @FieldXMLElement(name = "name",setMethod = "setName")
+    @FieldXMLElement
     String name;
-    @FieldXMLElement(name = "author",setMethod = "setAuthor")
+    @FieldXMLElement
     String author;
-    @FieldXMLElement(name = "year",setMethod = "setYear")
+    @FieldXMLElement(setMethod = "setYearrrrrrr")
     String year;
-    @FieldXMLElement(name = "price",setMethod = "setPrice")
-    String price;
+    @FieldXMLElement(name = "price")
+    String bookPrice;
 
     Language language;
 
@@ -45,9 +45,6 @@ public class Book {
 
     public void setPages(List<Page> pages) {
         this.pages = pages;
-    }
-
-    public Book() {
     }
 
     public String getId() {
@@ -78,16 +75,15 @@ public class Book {
         return year;
     }
 
-    public void setYear(String year) {
+    public void setYearrrrrrr(String year) {
         this.year = year;
     }
 
-    public String getPrice() {
-        return price;
+    public String getBookPrice() {
+        return bookPrice;
     }
 
-    public void setPrice(String prise) {
-        this.price = prise;
+    public void setBookPrice(String bookPrice) {
+        this.bookPrice = bookPrice;
     }
-
 }

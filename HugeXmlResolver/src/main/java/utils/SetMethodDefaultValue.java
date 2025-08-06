@@ -1,6 +1,7 @@
-package Utils;
+package utils;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 
 /**
  * @author: oooooooooldbi
@@ -10,13 +11,23 @@ import java.lang.reflect.Field;
 public class SetMethodDefaultValue {
 
     static String setString ="set";
-
+    static String addString ="add";
     static String point ="\\.";
 
     public static String setMethodDefaultValue(Field field) {
 
         String name = field.getName();
-        StringBuilder stringBuilder = new StringBuilder(setString);
+
+        Class<?> type = field.getType();
+        StringBuilder stringBuilder;
+
+        if (Collection.class.isAssignableFrom(type)) {
+            stringBuilder = new StringBuilder(addString);
+        }else {
+            stringBuilder = new StringBuilder(setString);
+        }
+
+
         stringBuilder.append(Character.toUpperCase(name.charAt(0))).append(name.substring(1));
         return stringBuilder.toString();
 
